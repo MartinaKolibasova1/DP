@@ -1,7 +1,6 @@
 import glob
 import os
 import SimpleITK as sitk
-import sys
 from torch.utils.data import Dataset
 
 
@@ -19,29 +18,22 @@ class ImageNiftiDataset(Dataset):
         self.segmentations = []
 
         # all data in folder
-        for mri in os.listdir(data_root):
-            mri_folder = os.path.join(data_root, mri)
+        for mri_dir in os.scandir(data_root):
+            if mri_dir.is_dir():
+                self._load_data_folder(mri_dir)
 
-            files = glob.glob(mri_folder + "/*.nii")
-            if len(files) > 0:
-                for file in files:
-                    print(file)
-                    if file.split("/")[1] == "data.nii":
-                        self.samples.append(sitk.ReadImage(files[0]))
-                    elif file.split("/")[1] == "saliency.nii":
-                        self.saliences.append(sitk.ReadImage(files[0]))
-                    elif file.split("/")[1] == "segmentation.nii":
-                        self.segmentations.append(sitk.ReadImage(files[0]))
+    def _load_data_folder(self, mri_dir):
+        for f in glob.glob(mri_dir.path + "/*.nii"):
+            name = f.split("/")[-1]
+            if name == "data.nii":
+                self.samples.append(sitk.ReadImage(f))
+            elif name == "saliency.nii":
+                self.saliences.append(sitk.ReadImage(f))
+            elif name == "segmentation.nii":
+                self.segmentations.append(sitk.ReadImage(f))
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
         return self.samples[idx]
-
-
-if __name__ == '__main__':
-    if len(sys.argv) > 0:
-        dataset = ImageNiftiDataset(str(sys.argv) + '/')
-    else:
-        dataset = ImageNiftiDataset('data/')
