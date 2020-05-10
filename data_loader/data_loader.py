@@ -36,4 +36,4 @@ class ImageNiftiDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        return self.samples[idx]
+        return self.samples[idx], self.saliences[idx], self.segmentations[idx]
