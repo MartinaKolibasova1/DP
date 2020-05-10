@@ -26,7 +26,7 @@ class ImageNiftiDataset(Dataset):
             if len(files) > 0:
                 for file in files:
                     print(file)
-                    if file.split("/")[1] == "sdata.nii":
+                    if file.split("/")[1] == "data.nii":
                         self.samples.append(sitk.ReadImage(files[0]))
                     elif file.split("/")[1] == "saliency.nii":
                         self.saliences.append(sitk.ReadImage(files[0]))
